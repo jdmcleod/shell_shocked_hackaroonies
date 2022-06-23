@@ -71,7 +71,7 @@ window.addEventListener('load', ()=>{
     const velocityToPowerRatio = 0.0518718 // Derived from getting slope of line in power to time linear graph
 
     const x = Math.abs(state.endPosition.x - state.startPosition.x)
-    const y = Math.abs(state.endPosition.y - state.startPosition.y)
+    const y = -1 * (state.endPosition.y - state.startPosition.y)
 
     const degreesToRadians = 0.01745329
     const chosenAngle = 71 * degreesToRadians
