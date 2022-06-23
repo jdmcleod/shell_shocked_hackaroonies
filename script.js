@@ -50,7 +50,7 @@ class OptimalShotCalculator {
   get y() { return this._y }
 
   calculateOptimalShot() {
-    const possibleShotsSortedByClosestToWholeNumber = this._calculatePossibleShots().sort((a, b) => {
+    const possibleShotsSortedByClosestToWholeNumber = this.calculatePossibleShots().sort((a, b) => {
       const powerADecimal = parseInt(a[1].toString().split('.')[1].slice(0, 3))
       const powerBDecimal = parseInt(b[1].toString().split('.')[1].slice(0, 3))
       return Math.abs(powerADecimal - 500) - Math.abs(powerBDecimal- 500)
@@ -62,7 +62,7 @@ class OptimalShotCalculator {
     return bestShot
   }
 
-  _calculatePossibleShots() {
+  calculatePossibleShots() {
     const shotOptions = []
 
     this.constructor.POSSIBLE_ANGLES.forEach(angle => {
@@ -91,29 +91,51 @@ class OptimalShotCalculator {
 const canvas = new Canvas('canvas')
 
 const state = {
-  hasCalibrated: false,
   startPosition: false,
   endPosition: false,
+  power: undefined
 }
 
-window.addEventListener('load', ()=>{
+window.addEventListener('load', ()=> {
+  let allShotOptionsDiv = document.getElementById('possible-shots')
+
   function getPosition(event){
     const x = event.clientX
     const y = event.clientY
     return { x, y }
   }
 
+  function reset() {
+    state.startPosition = false
+    state.endPosition = false
+    state.power = undefined
+    allShotOptionsDiv.innerText = 'Angle | Power'
+
+    canvas.clear()
+  }
+
   function calculatePower() {
+    if (state.power) return state.power
     const xDistance = Math.abs(state.endPosition.x - state.startPosition.x)
     const yDistance = -1 * (state.endPosition.y - state.startPosition.y)
     const calculator = new OptimalShotCalculator(xDistance, yDistance)
-    return calculator.calculateOptimalShot()
+    state.power = calculator.calculateOptimalShot()
+    return state.power
+  }
+
+  function printAllShotOptions() {
+    const xDistance = Math.abs(state.endPosition.x - state.startPosition.x)
+    const yDistance = -1 * (state.endPosition.y - state.startPosition.y)
+    const calculator = new OptimalShotCalculator(xDistance, yDistance)
+    const allOptions = calculator.calculatePossibleShots()
+    allShotOptionsDiv.innerText = `Angle | Power \n\n ${allOptions.map(option => `(${option[0]}, ${Math.round(option[1] * 100) / 100})\n`).join('')}`
   }
 
   function drawText() {
     canvas.ctx.fillStyle = 'white'
     canvas.ctx.font = '30px Arial'
     canvas.ctx.fillText(calculatePower(), state.startPosition.x + 30, state.startPosition.y + 30)
+    printAllShotOptions()
   }
 
   function draw(event) {
@@ -146,5 +168,6 @@ window.addEventListener('load', ()=>{
 
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mousedown', handleMouseDown)
+  document.getElementById('reset-button').onclick = reset
 })
 

@@ -7,4 +7,37 @@ body {
   border-radius: 10px;
   width: 100%;
   height: 100%;
+  z-index: 0;
+}
+
+.btn {
+  z-index: 1;
+  padding: 10px 10px;
+  cursor: pointer;
+
+  background: rgb(255, 190, 219);
+  border: 2px solid rgb(90, 0, 50);
+  border-radius: 8px;
+  font-size: 30px;
+  font-family: "Andale Mono";
+}
+
+.reset-button {
+  position: absolute;
+  bottom: 10px;
+  left: calc(50% - 40px);
+}
+
+.possible-shots {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 8px;
+  height: 300px;
+  width: 150px;
+  padding: 5px;
+  background: rgba(255, 190, 219, 0.3);
+  color: white;
+  font-family: "Andale Mono";
+  overflow-y: auto;
 }
