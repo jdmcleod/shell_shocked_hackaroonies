@@ -1,0 +1,16 @@
+{
+  "name": "shell_shocked_hackaroonies",
+  "version": "1.0.0",
+  "description": "An app to do the hacks",
+  "main": "main.js",
+  "type": "commonjs",
+  "repository": "git@github.com:jdmcleod/shell_shocked_hackaroonies.git",
+  "author": "josh@mcleodfamily.org",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^19.0.5"
+  },
+  "scripts": {
+    "start": "electron ."
+  }
+}
