@@ -59,13 +59,6 @@ window.addEventListener('load', ()=>{
     }
   }
 
-  // const acceleration = -0.006623241
-  // const pixelDistanceInCalibratingShot = 673 // angle 80 from barrel to endpoint on flat turf. Will vary with screen resolution. I used mac's screenshot tool to measure.
-  // const timeForCalibratingShot = 5.093 // In seconds - angle 80 on flat turf
-  // const xVelocity = pixelDistanceInCalibratingShot / timeForCalibratingShot
-  // const g = 2 * acceleration * Math.pow(xVelocity, 2)
-
-
   function calculatePower() {
     const g = -297 // This constant was found by playing around until it worked
     const velocityToPowerRatio = 0.0518718 // Derived from getting slope of line in power to time linear graph
@@ -74,14 +67,29 @@ window.addEventListener('load', ()=>{
     const y = -1 * (state.endPosition.y - state.startPosition.y)
 
     const degreesToRadians = 0.01745329
-    const chosenAngle = 71 * degreesToRadians
+    let possibleAngles = [69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]
+    let possibleNumbers = []
 
-    const numerator = -1 * g * Math.pow(x, 2)
-    const denominator = 2 * Math.pow(Math.cos(chosenAngle), 2) * (Math.tan(chosenAngle) * x - y)
-    const squareRoot = Math.sqrt(numerator / denominator)
-    const power = (-2 / (g * velocityToPowerRatio)) * squareRoot
+    possibleAngles.forEach(angle => {
+      const radians = angle * degreesToRadians
+      const numerator = -1 * g * Math.pow(x, 2)
+      const denominator = 2 * Math.pow(Math.cos(radians), 2) * (Math.tan(radians) * x - y)
+      const squareRoot = Math.sqrt(Math.abs(numerator / denominator))
+      const power = (-2 / (g * velocityToPowerRatio)) * squareRoot
+      possibleNumbers.push([angle, power])
+    })
 
-    return power
+    // Figure out which power number is furthest away from .5
+    const sortedNumbers = possibleNumbers.filter(result => result[1] < 100).sort((a, b) => {
+      const powerADecimal = parseInt(a[1].toString().split('.')[1].slice(0, 3))
+      const powerBDecimal = parseInt(b[1].toString().split('.')[1].slice(0, 3))
+      return Math.abs(powerADecimal - 500) - Math.abs(powerBDecimal- 500)
+    })
+
+    const bestNumber = sortedNumbers[sortedNumbers.length - 1]
+    bestNumber[1] = Math.round(bestNumber[1] * 100) / 100
+
+    return bestNumber
   }
 
   function drawText() {
