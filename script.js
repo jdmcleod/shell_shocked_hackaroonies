@@ -1,4 +1,4 @@
-export default class Canvas {
+class Canvas {
   constructor(id) {
     this._canvas = document.getElementById(id)
 
@@ -30,6 +30,64 @@ export default class Canvas {
   }
 }
 
+class OptimalShotCalculator {
+  static get GRAVITY()  { return -297 } // This constant was found by playing around until it worked
+  static get VELOCITY_TO_POWER() { return 0.0518718 } // Derived from getting slope of line in power to time linear graph
+  static get DEGREES_TO_RADIANS() { return 0.01745329 }
+  static get POSSIBLE_ANGLES() { return [69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87] }
+
+  /**
+   * Takes the x and y distance to the enemy tank
+   * @param x
+   * @param y
+   */
+  constructor(x, y) {
+    this._x = x
+    this._y = y
+  }
+
+  get x() { return this._x }
+  get y() { return this._y }
+
+  calculateOptimalShot() {
+    const possibleShotsSortedByClosestToWholeNumber = this._calculatePossibleShots().sort((a, b) => {
+      const powerADecimal = parseInt(a[1].toString().split('.')[1].slice(0, 3))
+      const powerBDecimal = parseInt(b[1].toString().split('.')[1].slice(0, 3))
+      return Math.abs(powerADecimal - 500) - Math.abs(powerBDecimal- 500)
+    })
+
+    const bestShot = possibleShotsSortedByClosestToWholeNumber[possibleShotsSortedByClosestToWholeNumber.length - 1]
+    bestShot[1] = Math.round(bestShot[1] * 100) / 100
+
+    return bestShot
+  }
+
+  _calculatePossibleShots() {
+    const shotOptions = []
+
+    this.constructor.POSSIBLE_ANGLES.forEach(angle => {
+      shotOptions.push([angle, this._calculatePowerForAngle(angle)])
+    })
+
+    return shotOptions.filter(result => result[1] < 100)
+  }
+
+  /**
+   * Use formula derived in this article https://steamcommunity.com/sharedfiles/filedetails/?id=1327582953
+   * @param angle
+   * @returns {number}
+   * @private
+   */
+  _calculatePowerForAngle(angle) {
+    const radians = angle * this.constructor.DEGREES_TO_RADIANS
+    const numerator = -1 * this.constructor.GRAVITY * Math.pow(this.x, 2)
+    const denominator = 2 * Math.pow(Math.cos(radians), 2) * (Math.tan(radians) * this.x - this.y)
+    const squareRoot = Math.sqrt(Math.abs(numerator / denominator))
+    const power = (-2 / (this.constructor.GRAVITY * this.constructor.VELOCITY_TO_POWER)) * squareRoot
+    return power
+  }
+}
+
 const canvas = new Canvas('canvas')
 
 const state = {
@@ -45,51 +103,11 @@ window.addEventListener('load', ()=>{
     return { x, y }
   }
 
-  function handleMouseMove(event) {
-    draw(event)
-  }
-
-  function handleMouseDown(event) {
-    if (!state.startPosition) {
-      return state.startPosition = getPosition(event)
-    }
-
-    if (!state.endPosition) {
-      state.endPosition = getPosition(event)
-    }
-  }
-
   function calculatePower() {
-    const g = -297 // This constant was found by playing around until it worked
-    const velocityToPowerRatio = 0.0518718 // Derived from getting slope of line in power to time linear graph
-
-    const x = Math.abs(state.endPosition.x - state.startPosition.x)
-    const y = -1 * (state.endPosition.y - state.startPosition.y)
-
-    const degreesToRadians = 0.01745329
-    let possibleAngles = [69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]
-    let possibleNumbers = []
-
-    possibleAngles.forEach(angle => {
-      const radians = angle * degreesToRadians
-      const numerator = -1 * g * Math.pow(x, 2)
-      const denominator = 2 * Math.pow(Math.cos(radians), 2) * (Math.tan(radians) * x - y)
-      const squareRoot = Math.sqrt(Math.abs(numerator / denominator))
-      const power = (-2 / (g * velocityToPowerRatio)) * squareRoot
-      possibleNumbers.push([angle, power])
-    })
-
-    // Figure out which power number is furthest away from .5
-    const sortedNumbers = possibleNumbers.filter(result => result[1] < 100).sort((a, b) => {
-      const powerADecimal = parseInt(a[1].toString().split('.')[1].slice(0, 3))
-      const powerBDecimal = parseInt(b[1].toString().split('.')[1].slice(0, 3))
-      return Math.abs(powerADecimal - 500) - Math.abs(powerBDecimal- 500)
-    })
-
-    const bestNumber = sortedNumbers[sortedNumbers.length - 1]
-    bestNumber[1] = Math.round(bestNumber[1] * 100) / 100
-
-    return bestNumber
+    const xDistance = Math.abs(state.endPosition.x - state.startPosition.x)
+    const yDistance = -1 * (state.endPosition.y - state.startPosition.y)
+    const calculator = new OptimalShotCalculator(xDistance, yDistance)
+    return calculator.calculateOptimalShot()
   }
 
   function drawText() {
@@ -109,6 +127,21 @@ window.addEventListener('load', ()=>{
     canvas.drawCrosshair(state.endPosition.x, state.endPosition.y)
 
     if (state.startPosition && state.endPosition) drawText()
+  }
+
+  function handleMouseMove(event) {
+    draw(event)
+  }
+
+  function handleMouseDown(event) {
+    if (!state.startPosition) {
+      return state.startPosition = getPosition(event)
+    }
+
+    if (!state.endPosition) {
+      state.endPosition = getPosition(event)
+      draw(event)
+    }
   }
 
   document.addEventListener('mousemove', handleMouseMove)
