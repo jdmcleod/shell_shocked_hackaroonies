@@ -124,6 +124,7 @@ window.addEventListener('load', ()=> {
   }
 
   function printAllShotOptions() {
+    if (!state.power) return
     const xDistance = Math.abs(state.endPosition.x - state.startPosition.x)
     const yDistance = -1 * (state.endPosition.y - state.startPosition.y)
     const calculator = new OptimalShotCalculator(xDistance, yDistance)
