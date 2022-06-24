@@ -34,7 +34,7 @@ class OptimalShotCalculator {
   static get GRAVITY()  { return -297 } // This constant was found by playing around until it worked
   static get VELOCITY_TO_POWER() { return 0.0518718 } // Derived from getting slope of line in power to time linear graph
   static get DEGREES_TO_RADIANS() { return 0.01745329 }
-  static get POSSIBLE_ANGLES() { return [69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87] }
+  static get POSSIBLE_ANGLES() { return [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87] }
 
   /**
    * Takes the x and y distance to the enemy tank
