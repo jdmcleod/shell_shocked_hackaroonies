@@ -51,25 +51,20 @@ class OptimalShotCalculator {
 
   calculateOptimalShot() {
     const possibleShotsSortedByClosestToWholeNumber = this.calculatePossibleShots().sort((a, b) => {
-      const powerADecimal = parseInt(a[1].toString().split('.')[1].slice(0, 3))
-      const powerBDecimal = parseInt(b[1].toString().split('.')[1].slice(0, 3))
+      const powerADecimal = parseInt(a[0].toString().split('.')[0].slice(0, 3))
+      const powerBDecimal = parseInt(b[0].toString().split('.')[0].slice(0, 3))
       return Math.abs(powerADecimal - 500) - Math.abs(powerBDecimal- 500)
     })
 
     const bestShot = possibleShotsSortedByClosestToWholeNumber[possibleShotsSortedByClosestToWholeNumber.length - 1]
-    bestShot[1] = Math.round(bestShot[1] * 100) / 100
+    bestShot[0] = Math.round(bestShot[0] * 100) / 100
 
     return bestShot
   }
 
   calculatePossibleShots() {
-    const shotOptions = []
-
-    this.constructor.POSSIBLE_ANGLES.forEach(angle => {
-      shotOptions.push([angle, this._calculatePowerForAngle(angle)])
-    })
-
-    return shotOptions.filter(result => result[1] < 100)
+    return this.constructor.POSSIBLE_ANGLES.map(angle => [this._calculatePowerForAngle(angle), angle])
+      .filter(result => result[0] < 100)
   }
 
   /**
@@ -109,7 +104,7 @@ window.addEventListener('load', ()=> {
     state.startPosition = false
     state.endPosition = false
     state.power = undefined
-    allShotOptionsDiv.innerText = 'Angle | Power'
+    allShotOptionsDiv.innerText = 'Power | Angle'
 
     canvas.clear()
   }
@@ -129,13 +124,15 @@ window.addEventListener('load', ()=> {
     const yDistance = -1 * (state.endPosition.y - state.startPosition.y)
     const calculator = new OptimalShotCalculator(xDistance, yDistance)
     const allOptions = calculator.calculatePossibleShots()
-    allShotOptionsDiv.innerText = `Angle | Power \n\n ${allOptions.map(option => `(${option[0]}, ${Math.round(option[1] * 100) / 100})\n`).join('')}`
+    allShotOptionsDiv.innerText = `Power | Angle \n\n ${allOptions.map(option => `(${Math.round(option[0] * 100) / 100}, ${option[1]})\n`).join('')}`
   }
 
   function drawText() {
     canvas.ctx.fillStyle = 'white'
     canvas.ctx.font = '30px Arial'
-    canvas.ctx.fillText(calculatePower(), state.startPosition.x + 30, state.startPosition.y + 30)
+    const power = calculatePower()
+    const powerToString = `${Math.round(power[0])}, ${power[1]}`
+    canvas.ctx.fillText(powerToString, state.startPosition.x + 30, state.startPosition.y + 30)
     printAllShotOptions()
   }
 
