@@ -1,8 +1,12 @@
 # shell_shocked_hackaroonies 
 ## To achieve perfect accuracy in Shell Shocked
 
-Run with 
+Clone the repo
 
-`yarn build`
+Install dependencies
+`npm install`
+
+Run
+`yarn start`
 
 
