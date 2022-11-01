@@ -1,4 +1,5 @@
-# shell_shocked_hackaroonies (To acheive perfect accuray in Shell Shocked)
+# shell_shocked_hackaroonies 
+## To achieve perfect accuracy in Shell Shocked
 
 Run with 
 
