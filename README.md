@@ -7,6 +7,6 @@ Install dependencies
 `npm install`
 
 Run
-`yarn start`
+`npm start`
 
 
