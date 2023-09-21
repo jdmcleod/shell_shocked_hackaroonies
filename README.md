@@ -10,3 +10,4 @@ Run
 `npm start`
 
 
+You may need to update the gravity constant based on your screen size...
